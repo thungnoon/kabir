@@ -101,7 +101,8 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-      - name: Compile Packages
+        
+    - name: Compile Packages
       id: compile
       run: |
         cd $OPENWRTROOT
