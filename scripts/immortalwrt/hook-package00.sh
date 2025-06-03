@@ -17,8 +17,8 @@ rm -rf customfeeds/packages/net/shadowsocks-libev
 rm -rf customfeeds/packages/net/{*alist,chinadns-ng,dns2socks,dns2tcp,lucky,sing-box}
 # chmod 755 customfeeds/lovepackages/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 
-# sed -i 's/1.14.1/1.14.2/g' customfeeds/packages/net/zerotier/Makefile
-# sed -i 's/4f9f40b27c5a78389ed3f3216c850921f6298749e5819e9f2edabb2672ce9ca0/c2f64339fccf5148a7af089b896678d655fbfccac52ddce7714314a59d7bddbb/g' customfeeds/packages/net/zerotier/Makefile
+sed -i 's/1.14.1/1.14.2/g' customfeeds/packages/net/zerotier/Makefile
+sed -i 's/4f9f40b27c5a78389ed3f3216c850921f6298749e5819e9f2edabb2672ce9ca0/c2f64339fccf5148a7af089b896678d655fbfccac52ddce7714314a59d7bddbb/g' customfeeds/packages/net/zerotier/Makefile
 
 # Update golang 1.23.x
 rm -rf customfeeds/packages/lang/golang
@@ -27,11 +27,6 @@ git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lan
 # samba4 - bump version
 rm -rf customfeeds/packages/net/samba4
 git clone https://github.com/sbwml/feeds_packages_net_samba4 customfeeds/packages/net/samba4
-sed -i 's/ftp.gwdg.de/download.samba.org/g' customfeeds/packages/net/samba4/Makefile
-
-# liburing - 2.7 (samba-4.21.0)
-rm -rf customfeeds/packages/libs/liburing
-git clone --depth 1 https://github.com/sbwml/feeds_packages_libs_liburing customfeeds/packages/libs/liburing
 # enable multi-channel
 sed -i '/workgroup/a \\n\t## enable multi-channel' customfeeds/packages/net/samba4/files/smb.conf.template
 sed -i '/enable multi-channel/a \\tserver multi channel support = yes' customfeeds/packages/net/samba4/files/smb.conf.template
@@ -46,10 +41,9 @@ sed -i 's/0666/0644/g;s/0744/0755/g;s/0777/0755/g' customfeeds/luci/applications
 sed -i 's/0666/0644/g;s/0777/0755/g' customfeeds/packages/net/samba4/files/samba.config
 sed -i 's/0666/0644/g;s/0777/0755/g' customfeeds/packages/net/samba4/files/smb.conf.template
 
-# natmap
-pushd customfeeds/luci
-curl -s https://raw.githubusercontent.com/xuanranran/r4s_build_script/refs/heads/master/openwrt/patch/luci/applications/luci-app-natmap/0001-luci-app-natmap-add-default-STUN-server-lists.patch | patch -p1
-popd
+# luci-app-sqm
+rm -rf customfeeds/luci/applications/luci-app-sqm
+git clone https://git.cooluc.com/sbwml/luci-app-sqm customfeeds/luci/applications/luci-app-sqm
 
 # Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101 & r8127
 # rm -rf package/kernel/{r8168,r8101,r8125,r8126,r8127,r8152}
@@ -89,4 +83,3 @@ rm -rf customfeeds/packages/net/coova-chilli
 git clone https://github.com/sbwml/kmod_packages_net_coova-chilli customfeeds/packages/net/coova-chilli
 
 # 替换杂项
-
