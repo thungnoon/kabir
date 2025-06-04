@@ -16,6 +16,7 @@ git clone https://github.com/sbwml/package_system_fstools -b openwrt-24.10 packa
 # util-linux
 # rm -rf package/utils/util-linux
 # git clone https://github.com/sbwml/package_utils_util-linux -b openwrt-24.10 package/utils/util-linux
+curl -s https://raw.githubusercontent.com/sbwml/package_utils_util-linux/refs/heads/openwrt-24.10/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch > package/utils/util-linux/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch
 
 # openssl 3.0.16
 rm -rf package/libs/openssl
@@ -67,6 +68,12 @@ curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/mas
 curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/openssl/quic/0042-QUIC-Better-SSL_clear.patch
 curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/openssl/quic/0043-QUIC-Fix-extension-test.patch
 curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/openssl/quic/0044-QUIC-Update-metadata-version.patch
+popd
+
+# openssl benchmarks
+pushd package/libs/openssl/patches
+    curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/openssl/901-Revert-speed-Pass-IV-to-EVP_CipherInit_ex-for-evp-ru.patch
+    curl -sO https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/openssl/902-Revert-apps-speed.c-Fix-the-benchmarking-for-AEAD-ci.patch
 popd
 
 # openssl urandom
@@ -163,6 +170,7 @@ curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/mas
 curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/kernel-6.12/bbr3/010-bbr3-0017-net-tcp_bbr-v3-ensure-ECN-enabled-BBR-flows-set-ECT-.patch
 curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/kernel-6.12/bbr3/010-bbr3-0018-tcp-export-TCPI_OPT_ECN_LOW-in-tcp_info-tcpi_options.patch
 curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/kernel-6.12/bbr3/010-bbr3-0019-x86-cfi-bpf-Add-tso_segs-and-skb_marked_lost-to-bpf_.patch
+curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/kernel-6.12/bbr3/010-bbr3-0020-net-tcp_bbr-v3-silence-Wconstant-logical-operand.patch
 popd
 
 # linux-rt - i915
