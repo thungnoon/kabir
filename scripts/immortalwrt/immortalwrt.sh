@@ -6,7 +6,7 @@ pushd package/community
 # Add openwrt-packages
 git clone --depth=1 https://github.com/xuanranran/openwrt-package openwrt-package
 git clone --depth=1 https://github.com/xuanranran/rely openwrt-rely
-git clone --depth=1 https://github.com/sbwml/wwan-packages wwan-packages
+git clone --depth=1 https://github.com/immortalwrt/wwan-packages wwan-packages
 git clone --depth=1 https://github.com/sirpdboy/luci-app-poweroffdevice luci-app-poweroffdevice
 chmod 755 openwrt-package/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 popd
@@ -17,7 +17,7 @@ rm -rf yacd zashboard metacubexd/*
 curl -sSL https://codeload.github.com/haishanh/yacd/zip/refs/heads/gh-pages -o yacd-dist-cdn-fonts.zip
 curl -sSL https://github.com/MetaCubeX/metacubexd/releases/latest/download/compressed-dist.tgz -o compressed-dist.tgz
 curl -sSL https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip -o dist-cdn-fonts.zip
-tar zxvf compressed-dist.tgz -C ./metacubexd
+tar zxf compressed-dist.tgz -C ./metacubexd
 unzip -q dist-cdn-fonts.zip && unzip -q yacd-dist-cdn-fonts.zip
 mv dist zashboard && mv yacd-gh-pages yacd
 rm -rf yacd-dist-cdn-fonts.zip dist-cdn-fonts.zip compressed-dist.tgz
