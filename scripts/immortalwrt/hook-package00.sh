@@ -15,7 +15,6 @@ rm -rf customfeeds/luci/themes/luci-theme-argon
 rm -rf customfeeds/packages/net/shadowsocks-libev
 
 rm -rf customfeeds/packages/net/{*alist,chinadns-ng,dns2socks,dns2tcp,lucky,sing-box}
-# chmod 755 customfeeds/lovepackages/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 
 # ZeroTier
 sed -i 's/1.14.1/1.14.2/g' customfeeds/packages/net/zerotier/Makefile
@@ -46,15 +45,6 @@ sed -i 's/0666/0644/g;s/0777/0755/g' customfeeds/packages/net/samba4/files/smb.c
 # rm -rf customfeeds/luci/applications/luci-app-sqm
 # git clone https://git.cooluc.com/sbwml/luci-app-sqm customfeeds/luci/applications/luci-app-sqm
 
-# Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101 & r8127
-# rm -rf package/kernel/{r8168,r8101,r8125,r8126,r8127,r8152}
-# git clone https://github.com/sbwml/package_kernel_r8168 package/kernel/r8168
-# git clone https://github.com/sbwml/package_kernel_r8152 package/kernel/r8152
-# git clone https://github.com/sbwml/package_kernel_r8101 package/kernel/r8101
-# git clone https://github.com/sbwml/package_kernel_r8125 package/kernel/r8125
-# git clone https://github.com/sbwml/package_kernel_r8126 package/kernel/r8126
-# git clone https://github.com/sbwml/package_kernel_r8127 package/kernel/r8127
-
 # procps-ng - top
 sed -i 's/enable-skill/enable-skill --disable-modern-top/g' customfeeds/packages/utils/procps-ng/Makefile
 
@@ -62,18 +52,13 @@ sed -i 's/enable-skill/enable-skill --disable-modern-top/g' customfeeds/packages
 rm -rf package/network/utils/xdp-tools
 git clone --depth 1 https://github.com/sbwml/package_network_utils_xdp-tools package/network/utils/xdp-tools
 
-# nat46
-# mkdir -p package/kernel/nat46/patches
-# curl -s https://raw.githubusercontent.com/LovinYarn/r4s_build_script/refs/heads/master/openwrt/patch/packages-patches/nat46/100-fix-build-with-kernel-6.9.patch > package/kernel/nat46/patches/100-fix-build-with-kernel-6.9.patch
-# curl -s https://raw.githubusercontent.com/LovinYarn/r4s_build_script/refs/heads/master/openwrt/patch/packages-patches/nat46/101-fix-build-with-kernel-6.12.patch > package/kernel/nat46/patches/101-fix-build-with-kernel-6.12.patch
-
 # clang
 # xtables-addons module
 rm -rf customfeeds/packages/net/xtables-addons
 git clone https://github.com/sbwml/kmod_packages_net_xtables-addons customfeeds/packages/net/xtables-addons
 # netatop
 sed -i 's/$(MAKE)/$(KERNEL_MAKE)/g' customfeeds/packages/admin/netatop/Makefile
-curl -s https://raw.githubusercontent.com/LovinYarn/r4s_build_script/refs/heads/master/openwrt/patch/packages-patches/clang/netatop/900-fix-build-with-clang.patch > customfeeds/packages/admin/netatop/patches/900-fix-build-with-clang.patch
+curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/packages-patches/clang/netatop/900-fix-build-with-clang.patch > customfeeds/packages/admin/netatop/patches/900-fix-build-with-clang.patch
 # dmx_usb_module
 rm -rf customfeeds/packages/libs/dmx_usb_module
 git clone https://github.com/xuanranran/feeds_packages_libs_dmx_usb_module customfeeds/packages/libs/dmx_usb_module
@@ -88,8 +73,9 @@ git clone https://github.com/sbwml/kmod_packages_net_coova-chilli customfeeds/pa
 # libxcrypt
 mkdir -p customfeeds/packages/libs/libxcrypt
 curl -s https://raw.githubusercontent.com/openwrt/openwrt/a461f53bfdff14341bf84ba4221daeedea3f74bb/package/libs/xcrypt/Makefile > customfeeds/packages/libs/libxcrypt/Makefile
+# curl -s https://raw.githubusercontent.com/openwrt/openwrt/a461f53bfdff14341bf84ba4221daeedea3f74bb/package/libs/xcrypt/Makefile > package/libs/xcrypt/Makefile
 
-# sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' customfeeds/packages/lang/rust/Makefile
+sed -i 's/xcrypt/libxcrypt/g' customfeeds/packages/utils/shadow/Makefile
 
 # del mqttled
 rm -rf customfeeds/packages/utils/mqttled
