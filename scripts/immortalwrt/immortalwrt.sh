@@ -7,7 +7,6 @@ pushd package/community
 git clone --depth=1 https://github.com/xuanranran/openwrt-package openwrt-package
 git clone --depth=1 https://github.com/xuanranran/rely openwrt-rely
 git clone --depth=1 https://github.com/immortalwrt/wwan-packages wwan-packages
-git clone --depth 1 https://github.com/sirpdboy/luci-app-poweroffdevice luci-app-poweroffdevice 
 chmod 755 openwrt-package/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 popd
 
@@ -33,6 +32,7 @@ sed -i "s/ImmortalWrt/OpenWrt/g" package/base-files/files/bin/config_generate
 # 修改开源站地址
 # sed -i '/@OPENWRT/a\\t\t"https://source.cooluc.com",' scripts/projectsmirrors.json
 sed -i 's/mirror.iscas.ac.cn/mirrors.ustc.edu.cn/g' scripts/projectsmirrors.json
+sed -i '6,8d;15,18d;33,36d' scripts/projectsmirrors.json
 
 sed -i 's/services/network/g' customfeeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 sed -i 's/services/vpn/g' customfeeds/luci/applications/luci-app-frpc/root/usr/share/luci/menu.d/luci-app-frpc.json
