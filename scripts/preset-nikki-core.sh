@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 #=================================================
 # File name: preset-nikki-core.sh
 # System Required: Linux
