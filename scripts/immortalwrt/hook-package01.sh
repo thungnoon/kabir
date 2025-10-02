@@ -24,11 +24,5 @@ curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/mast
 mkdir -p customfeeds/packages/utils/sms-tool/patches
 curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/packages-patches/sms-tools/900-fix-incompatible-pointer-type-error-for-signal-function.patch > customfeeds/packages/utils/sms-tool/patches/900-fix-incompatible-pointer-type-error-for-signal-function.patch
 
-# ZeroTier
-rm -rf customfeeds/packages/net/zerotier
-git clone https://github.com/xuanranran/packages_net_zerotier customfeeds/packages/net/zerotier
-
-# rust
-pushd customfeeds/packages
-  curl -s https://patch-diff.githubusercontent.com/raw/openwrt/packages/pull/27487.patch | patch -p1
-popd
+# boost
+curl -s https://raw.githubusercontent.com/openwrt/packages/3585ddfc446c38721d3ca4d1c708cbd9d3114726/libs/boost/Makefile > customfeeds/packages/libs/boost/Makefile
