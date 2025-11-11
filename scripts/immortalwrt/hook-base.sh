@@ -12,8 +12,10 @@ echo "# CONFIG_KMSAN is not set" >> target/linux/x86/config-6.12
 sed -i 's/noinitrd/noinitrd mitigations=off/g' target/linux/x86/image/grub-efi.cfg
 
 # fstools
-rm -rf package/system/fstools
-git clone https://github.com/sbwml/package_system_fstools -b openwrt-24.10 package/system/fstools
+pushd package/system/fstools
+patch -p1 < $GITHUB_WORKSPACE/data/fstools/fstools-add-xfs-ntfs3-extroot-support-and-fix-packaging.patch
+sed -i 's/+libjson-c/+libjson-c +fstools/' Makefile
+popd
 
 # util-linux
 mkdir -p package/utils/util-linux/patches
@@ -171,9 +173,9 @@ curl -Os https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/mas
 popd
 
 # iproute2 - bbr3
-curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/iproute2/900-ss-output-TCP-BBRv3-diag-information.patch > package/network/utils/iproute2/patches/900-ss-output-TCP-BBRv3-diag-information.patch
-curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/iproute2/901-ip-introduce-the-ecn_low-per-route-feature.patch > package/network/utils/iproute2/patches/901-ip-introduce-the-ecn_low-per-route-feature.patch
-curl -s https://raw.githubusercontent.com/sbwml/r4s_build_script/refs/heads/master/openwrt/patch/iproute2/902-ss-display-ecn_low-if-tcp_info-tcpi_options-TCPI_OPT.patch > package/network/utils/iproute2/patches/902-ss-display-ecn_low-if-tcp_info-tcpi_options-TCPI_OPT.patch
+curl -s https://raw.githubusercontent.com/xuanranran/OpenWRT-X86_64/refs/heads/master/data/iproute2/900-ss-output-TCP-BBRv3-diag-information.patch > package/network/utils/iproute2/patches/900-ss-output-TCP-BBRv3-diag-information.patch
+curl -s https://raw.githubusercontent.com/xuanranran/OpenWRT-X86_64/refs/heads/master/data/iproute2/901-ip-introduce-the-ecn_low-per-route-feature.patch > package/network/utils/iproute2/patches/901-ip-introduce-the-ecn_low-per-route-feature.patch
+curl -s https://raw.githubusercontent.com/xuanranran/OpenWRT-X86_64/refs/heads/master/data/iproute2/902-ss-display-ecn_low-if-tcp_info-tcpi_options-TCPI_OPT.patch > package/network/utils/iproute2/patches/902-ss-display-ecn_low-if-tcp_info-tcpi_options-TCPI_OPT.patch
 
 # bpf-headers - 6.12
 sed -ri "s/(PKG_PATCHVER:=)[^\"]*/\16.12/" package/kernel/bpf-headers/Makefile
