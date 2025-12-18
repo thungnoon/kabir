@@ -98,5 +98,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-autoload -U compinit && compinit
+# 修复 OpenWrt 下的权限和路径问题
+autoload -Uz compinit
+compinit -u -C -d $HOME/.zcompdump
+
 cat /etc/banner
