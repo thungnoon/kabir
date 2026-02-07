@@ -37,6 +37,7 @@ sed -i 's/mirror.iscas.ac.cn/mirrors.ustc.edu.cn/g' scripts/projectsmirrors.json
 sed -i 's/services/network/g' customfeeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 sed -i 's/services/vpn/g' customfeeds/luci/applications/luci-app-frpc/root/usr/share/luci/menu.d/luci-app-frpc.json
 sed -i 's/services/network/g' customfeeds/luci/applications/luci-app-3cat/root/usr/share/luci/menu.d/luci-app-3cat.json
+sed -i 's/services/vpn/g' customfeeds/luci/applications/luci-app-tailscale-community/root/usr/share/luci/menu.d/luci-app-tailscale-community.json
 
 # other
 rm -rf target/linux/x86/base-files/etc/board.d/02_network
@@ -48,3 +49,8 @@ echo -e "\n# Kernel - LRNG" >> .config
 echo "CONFIG_KERNEL_LRNG=y" >> .config
 echo "# CONFIG_PACKAGE_urandom-seed is not set" >> .config
 echo "# CONFIG_PACKAGE_urngd is not set" >> .config
+
+# Del luci-app-attendedsysupgrade
+sed -i '18d' customfeeds/luci/collections/luci-nginx/Makefile
+sed -i '17d' customfeeds/luci/collections/luci/Makefile
+sed -i '16s/ \\$//' customfeeds/luci/collections/luci/Makefile
