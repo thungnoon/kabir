@@ -6,7 +6,7 @@ pushd package/community
 # Add openwrt-packages
 git clone --depth=1 https://github.com/xuanranran/openwrt-package openwrt-package
 git clone --depth=1 https://github.com/xuanranran/rely openwrt-rely
-git clone --depth=1 https://github.com/immortalwrt/wwan-packages wwan-packages
+git clone --depth=1 https://github.com/sbwml/wwan-packages wwan-packages
 chmod 755 openwrt-package/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 popd
 
@@ -30,9 +30,7 @@ sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generat
 sed -i "s/ImmortalWrt/OpenWrt/g" package/base-files/files/bin/config_generate
 
 # 修改开源站地址
-# sed -i '/@OPENWRT/a\\t\t"https://source.cooluc.com",' scripts/projectsmirrors.json
-sed -i 's/mirror.iscas.ac.cn/mirrors.ustc.edu.cn/g' scripts/projectsmirrors.json
-# sed -i '6,8d;15,18d;33,36d' scripts/projectsmirrors.json
+sed -i '54,56d;63d' scripts/projectsmirrors.json
 
 sed -i 's/services/network/g' customfeeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 sed -i 's/services/vpn/g' customfeeds/luci/applications/luci-app-frpc/root/usr/share/luci/menu.d/luci-app-frpc.json
@@ -45,12 +43,35 @@ rm -rf package/base-files/files/etc/banner
 cp -f $GITHUB_WORKSPACE/data/banner package/base-files/files/etc/banner
 cp -f $GITHUB_WORKSPACE/data/02_network target/linux/x86/base-files/etc/board.d/02_network
 
+# Kernel - LRNG
 echo -e "\n# Kernel - LRNG" >> .config
 echo "CONFIG_KERNEL_LRNG=y" >> .config
 echo "# CONFIG_PACKAGE_urandom-seed is not set" >> .config
 echo "# CONFIG_PACKAGE_urngd is not set" >> .config
 
-# Del luci-app-attendedsysupgrade
-sed -i '18d' customfeeds/luci/collections/luci-nginx/Makefile
-sed -i '17d' customfeeds/luci/collections/luci/Makefile
-sed -i '16s/ \\$//' customfeeds/luci/collections/luci/Makefile
+# Kernel - Hyper-V
+# These are kernel fragment symbols, so write them into the x86_64 6.18 target
+# config instead of the top-level OpenWrt .config.
+cat >> target/linux/x86/64/config-6.18 <<'EOF'
+CONFIG_HYPERV=y
+CONFIG_HYPERVISOR_GUEST=y
+CONFIG_HYPERV_BALLOON=y
+CONFIG_HYPERV_IOMMU=y
+CONFIG_HYPERV_KEYBOARD=y
+CONFIG_HYPERV_NET=y
+CONFIG_HYPERV_STORAGE=y
+CONFIG_HYPERV_TIMER=y
+CONFIG_HYPERV_UTILS=y
+CONFIG_HYPERV_VMBUS=y
+CONFIG_PCI_HYPERV=y
+CONFIG_PCI_HYPERV_INTERFACE=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_SCSI_FC_ATTRS=y
+EOF
+
+# DPDK
+echo 'CONFIG_PACKAGE_dpdk-tools=y' >> .config
+echo 'CONFIG_PACKAGE_numactl=y' >> .config
+
+# test 6.18
+sed -i 's/6.12/6.18/g' target/linux/x86/Makefile
