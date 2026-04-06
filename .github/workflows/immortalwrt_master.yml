@@ -77,7 +77,6 @@ jobs:
         echo "::endgroup::"
         ../scripts/immortalwrt/hook-feeds.sh
 
-          
     - name: Install Feeds
       run: |
         cd $OPENWRTROOT
