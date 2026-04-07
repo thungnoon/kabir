@@ -1,10 +1,10 @@
-name: immortalwrt_master
+name: immortalwrt_6.18
 
 permissions: write-all
 
 on:
   schedule:
-    - cron: 0 16 */3 * *
+    - cron: 0 10 */4 * *
   workflow_dispatch:
 
 env:
