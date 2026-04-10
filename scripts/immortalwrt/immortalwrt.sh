@@ -26,7 +26,7 @@ popd
 sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 
 # Modify default IP
-sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/192.168.11.1/g' package/base-files/files/bin/config_generate
 sed -i "s/ImmortalWrt/OpenWrt/g" package/base-files/files/bin/config_generate
 
 # 修改开源站地址
@@ -48,26 +48,6 @@ echo -e "\n# Kernel - LRNG" >> .config
 echo "CONFIG_KERNEL_LRNG=y" >> .config
 echo "# CONFIG_PACKAGE_urandom-seed is not set" >> .config
 echo "# CONFIG_PACKAGE_urngd is not set" >> .config
-
-# Kernel - Hyper-V
-# These are kernel fragment symbols, so write them into the x86_64 6.18 target
-# config instead of the top-level OpenWrt .config.
-cat >> target/linux/x86/64/config-6.18 <<'EOF'
-CONFIG_HYPERV=y
-CONFIG_HYPERVISOR_GUEST=y
-CONFIG_HYPERV_BALLOON=y
-CONFIG_HYPERV_IOMMU=y
-CONFIG_HYPERV_KEYBOARD=y
-CONFIG_HYPERV_NET=y
-CONFIG_HYPERV_STORAGE=y
-CONFIG_HYPERV_TIMER=y
-CONFIG_HYPERV_UTILS=y
-CONFIG_HYPERV_VMBUS=y
-CONFIG_PCI_HYPERV=y
-CONFIG_PCI_HYPERV_INTERFACE=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_SCSI_FC_ATTRS=y
-EOF
 
 # DPDK
 echo 'CONFIG_PACKAGE_dpdk-tools=y' >> .config
