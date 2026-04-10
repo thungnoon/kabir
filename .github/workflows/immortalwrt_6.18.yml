@@ -147,21 +147,6 @@ jobs:
         make checksum
         echo "GENERATE_STATUS=success" >> $GITHUB_OUTPUT
         
-    - name: Generate Firmware
-      if: steps.compile.outputs.COMPILE_STATUS == 'success'
-      id: generate
-      run: |
-        cd $OPENWRTROOT
-        mkdir -p files/etc/uci-defaults/
-        cp ../scripts/immortalwrt/snapshots-init-settings.sh files/etc/uci-defaults/99-init-settings
-        mkdir -p files/etc/apk/repositories.d 
-        cp ../configs/apk/openwrt-repositories-snapshots.conf files/etc/apk/repositories
-        cp ../configs/apk/openwrt-repositories-snapshots.conf files/etc/apk/repositories.d/distfeeds.list
-        make package/install -j$(nproc) || make package/install -j1 V=s
-        make target/install -j$(nproc) || make target/install -j1 V=s
-        make checksum
-        echo "GENERATE_STATUS=success" >> $GITHUB_OUTPUT
-
     - name: Organize and Rename Files
       id: organize
       if: ${{ env.UPLOAD_RELEASE == 'true' && !cancelled() }}
