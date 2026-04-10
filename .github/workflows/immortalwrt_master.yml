@@ -1,4 +1,4 @@
-name: immortalwrt_6.18
+name: immortalwrt_master_6_18
 
 permissions: write-all
 
@@ -90,7 +90,7 @@ jobs:
         ../$DIY_SH
         ../scripts/preset-clash-core.sh amd64
         ../scripts/preset-nikki-core.sh amd64
-        ../scripts/zsh_master/preset-terminal-tools.sh
+        ../scripts/preset-terminal-tools.sh
         echo "::group::View 'make defconfig' output"
         make defconfig
         echo "::endgroup::"
@@ -162,10 +162,13 @@ jobs:
       run: |
           echo "release_tag=$(date +"%Y.%m.%d")-immortalwrt" >> $GITHUB_OUTPUT
           echo "release_date=$(date "+%Y年%m月%d日")" >> $GITHUB_OUTPUT
+          KERNEL_VERSION=$(cat $OPENWRTROOT/build_dir/target-*/linux-*/linux-*/include/config/kernel.release)
+          echo "release_kernel=$KERNEL_VERSION" >> $GITHUB_OUTPUT
           touch release.txt
-          echo -e "**固件说明**: \n" >> release.txt
+          echo -e "**📥固件说明**: \n" >> release.txt
           echo -e "#### 后台地址: \`192.168.5.1\`\n" >> release.txt
           echo -e "#### 后台密码: \`password\`\n" >> release.txt
+          echo -e "#### Linux Kernel: **$KERNEL_VERSION**\n" >> release.txt
           echo "status=success" >> $GITHUB_OUTPUT
           
     - name: Upload firmware to release
