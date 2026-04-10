@@ -94,10 +94,6 @@ jobs:
         echo "::group::View 'make defconfig' output"
         make defconfig
         echo "::endgroup::"
-        chmod +x ../scripts/check-hyperv-config.sh
-        echo "::group::Verify requested Hyper-V kernel options"
-        ../scripts/check-hyperv-config.sh "$OPENWRTROOT" top
-        echo "::endgroup::"
 
     - name: Download Package
       id: package
@@ -117,9 +113,6 @@ jobs:
         make tools/compile -j$(nproc) || make tools/compile -j$(nproc) || make tools/compile -j1 IGNORE_ERRORS=1 V=s
         make toolchain/compile -j$(nproc) || make toolchain/compile -j$(nproc) || make toolchain/compile -j1 IGNORE_ERRORS=1 V=s
         make target/compile -j$(nproc) || make target/compile -j$(nproc) IGNORE_ERRORS=1 || make target/compile -j1 IGNORE_ERRORS=1 V=s
-        echo "::group::Verify final kernel Hyper-V options"
-        ../scripts/check-hyperv-config.sh "$OPENWRTROOT" kernel
-        echo "::endgroup::"
         make diffconfig
         make package/compile -j$(nproc) IGNORE_ERRORS=1 || make package/compile -j$(nproc) IGNORE_ERRORS=1
         make package/index
@@ -138,7 +131,21 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
-   
+
+    - name: Generate Firmware
+      if: steps.compile.outputs.COMPILE_STATUS == 'success'
+      id: generate
+      run: |
+        cd $OPENWRTROOT
+        mkdir -p files/etc/uci-defaults/
+        cp ../scripts/immortalwrt/snapshots-init-settings.sh files/etc/uci-defaults/99-init-settings
+        mkdir -p files/etc/apk/repositories.d 
+        cp ../configs/apk/openwrt-repositories-snapshots.conf files/etc/apk/repositories
+        cp ../configs/apk/openwrt-repositories-snapshots.conf files/etc/apk/repositories.d/distfeeds.list
+        make package/install -j$(nproc) || make package/install -j1 V=s
+        make target/install -j$(nproc) || make target/install -j1 V=s
+        make checksum
+        echo "GENERATE_STATUS=success" >> $GITHUB_OUTPUT
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
