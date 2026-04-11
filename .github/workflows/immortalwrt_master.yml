@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  USER_NAME: immortalwrt
+  USER_NAME: thungnoon
   REPO_BRANCH: master
   CONFIG_FILE: configs/immortalwrt/immortalwrt.config
   DIY_SH: scripts/immortalwrt/immortalwrt.sh
@@ -17,7 +17,7 @@ env:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
       PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
