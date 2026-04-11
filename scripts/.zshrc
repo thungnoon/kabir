@@ -72,7 +72,7 @@ plugins=(git command-not-found extract z docker zsh-syntax-highlighting zsh-auto
 
 ZSH_COMPDUMP="${HOME}/.zcompdump"
 ZSH_DISABLE_COMPFIX=true
-rm -f "${HOME}"/.zcompdump-* 2>/dev/null
+rm -f "${HOME}"/.zcompdump "${HOME}"/.zcompdump-*(N) 2>/dev/null
 
 source $ZSH/oh-my-zsh.sh
 
