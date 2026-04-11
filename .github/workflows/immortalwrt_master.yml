@@ -9,7 +9,7 @@ on:
 
 env:
   USER_NAME: thungnoon
-  REPO_BRANCH: master
+  REPO_BRANCH: 6.18
   CONFIG_FILE: configs/immortalwrt/immortalwrt.config
   DIY_SH: scripts/immortalwrt/immortalwrt.sh
   UPLOAD_RELEASE: true
