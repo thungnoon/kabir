@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  USER_NAME: thungnoon
-  REPO_BRANCH: 6.18
+  USER_NAME: immortalwrt
+  REPO_BRANCH: master
   CONFIG_FILE: configs/immortalwrt/immortalwrt.config
   DIY_SH: scripts/immortalwrt/immortalwrt.sh
   UPLOAD_RELEASE: true
