@@ -50,7 +50,7 @@ rm -rf package/system/fstools
 git clone https://$github/sbwml/package_system_fstools -b openwrt-25.12 package/system/fstools
 # util-linux
 mkdir -p package/utils/util-linux/patches
-curl -s https://raw.githubusercontent.com/sbwml/package_utils_util-linux/refs/heads/openwrt-25.12/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch > package/utils/util-linux/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch
+curl -s https://raw.githubusercontent.com/sbwml/package_utils_util-linux/refs/heads/openwrt-25.12/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch > package/utils/util-linux/patches/0002-ntfs-use-ntfs3-for-read-write-filesystem.patch
 
 # Shortcut Forwarding Engine
 git clone https://$gitea/sbwml/shortcut-fe package/emortal/shortcut-fe
@@ -87,7 +87,7 @@ curl -s $mirror/openwrt/patch/firewall4/nftables/0002-nftables-add-brcm-fullcone
 git clone https://$github/sbwml/packages_new_nat6 package/utils/nat6 -b openwrt-25.12
 
 # natflow
-git clone https://$github/sbwml/package_new_natflow package/utils/natflow
+git clone https://$github/xuanranran/package_new_natflow package/utils/natflow
 
 # luci-app-firewall
 curl -s https://raw.githubusercontent.com/openwrt/luci/refs/heads/master/applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js > customfeeds/luci/applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js
@@ -134,7 +134,7 @@ sed -i 's/procd_set_param stderr 1/procd_set_param stderr 0/g' customfeeds/packa
 # UPnP
 rm -rf customfeeds/packages/net/miniupnpd
 git clone https://$gitea/sbwml/miniupnpd customfeeds/packages/net/miniupnpd -b v2.3.9
-sed -i 's/PKG_RELEASE:=1/PKG_RELEASE:=2/g' customfeeds/packages/net/miniupnpd/Makefile
+sed -i 's/PKG_RELEASE:=1/PKG_RELEASE:=3/g' customfeeds/packages/net/miniupnpd/Makefile
 
 # nginx - latest version
 rm -rf customfeeds/packages/net/nginx
