@@ -35,7 +35,7 @@ jobs:
         remove-dotnet: 'true'
 
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@main
 
     - name: Initialization Environment
       env:
@@ -172,7 +172,7 @@ jobs:
           echo "status=success" >> $GITHUB_OUTPUT
           
     - name: Upload firmware to release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -183,22 +183,22 @@ jobs:
           files: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@v2
+      uses: Mattraks/delete-workflow-runs@main
       with:
           retain_days: 5
           keep_minimum_runs: 5
 
     - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@v0.3.4
+      uses: ophub/delete-releases-workflows@main
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-          keep_latest: 15
+          delete_releases: true
+          releases_keep_latest: 15
           delete_tags: true
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Delete Artifacts
-      uses: geekyeggo/delete-artifact@v6
+      uses: geekyeggo/delete-artifact@main
       with:
          name: |
             bin-archive
