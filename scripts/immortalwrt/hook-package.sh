@@ -24,6 +24,9 @@ rm -rf customfeeds/packages/net/{*alist,chinadns-ng,dns2socks,dns2tcp,lucky,sing
 rm -rf customfeeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lang/golang
 
+# poweroffdevice
+git clone https://github.com/sirpdboy/luci-app-poweroffdevice customfeeds/luci/applications/luci-app-poweroffdevice
+
 # samba4 - bump version
 # rm -rf customfeeds/packages/net/samba4
 # git clone https://github.com/sbwml/feeds_packages_net_samba4 customfeeds/packages/net/samba4
