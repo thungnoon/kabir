@@ -27,6 +27,9 @@ git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lan
 # poweroffdevice
 git clone https://github.com/sirpdboy/luci-app-poweroffdevice customfeeds/luci/applications/luci-app-poweroffdevice
 
+# partexp
+git clone https://github.com/sirpdboy/luci-app-partexp customfeeds/luci/applications/luci-app-partexp
+
 # samba4 - bump version
 # rm -rf customfeeds/packages/net/samba4
 # git clone https://github.com/sbwml/feeds_packages_net_samba4 customfeeds/packages/net/samba4
