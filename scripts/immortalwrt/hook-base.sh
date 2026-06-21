@@ -21,8 +21,8 @@ sed -i '/PKG_BUILD_PARALLEL/aPKG_BUILD_FLAGS:=no-mold' customfeeds/packages/util
 sed -i 's/noinitrd/noinitrd mitigations=off/g' target/linux/x86/image/grub-efi.cfg
 
 # Realtek Ethernet driver - R8168 & R8125 & R8126 & R8152 & R8101 & r8127
-rm -rf package/kernel/{r8168,r8101,r8125,r8126,r8127}
-git clone https://$github/sbwml/package_kernel_r8168 package/kernel/r8168
+rm -rf package/kernel/{r8101,r8125,r8126,r8127}
+# git clone https://$github/sbwml/package_kernel_r8168 package/kernel/r8168
 git clone https://$github/sbwml/package_kernel_r8101 package/kernel/r8101
 git clone https://$github/sbwml/package_kernel_r8125 package/kernel/r8125
 git clone https://$github/sbwml/package_kernel_r8126 package/kernel/r8126
@@ -58,7 +58,6 @@ git clone https://$gitea/sbwml/shortcut-fe package/emortal/shortcut-fe
 # Patch FireWall 4
 rm -rf package/network/config/firewall4/patches
 # firewall4
-sed -i 's|$(PROJECT_GIT)/project|https://$github/openwrt|g' package/network/config/firewall4/Makefile
 mkdir -p package/network/config/firewall4/patches
 # fullcone
 curl -s $mirror/openwrt/patch/firewall4/firewall4_patches/999-01-firewall4-add-fullcone-support.patch > package/network/config/firewall4/patches/999-01-firewall4-add-fullcone-support.patch
@@ -68,6 +67,8 @@ curl -s $mirror/openwrt/patch/firewall4/firewall4_patches/999-02-firewall4-add-b
 curl -s $mirror/openwrt/patch/firewall4/firewall4_patches/001-fix-fw4-flow-offload.patch > package/network/config/firewall4/patches/001-fix-fw4-flow-offload.patch
 # add custom nft command support
 curl -s $mirror/openwrt/patch/firewall4/100-openwrt-firewall4-add-custom-nft-command-support.patch | patch -p1
+# fw4 - github mirror
+sed -i 's|$(PROJECT_GIT)/project|https://github.com/openwrt|g' package/network/config/firewall4/Makefile
 # libnftnl
 mkdir -p package/libs/libnftnl/patches
 curl -s $mirror/openwrt/patch/firewall4/libnftnl/0001-libnftnl-add-fullcone-expression-support.patch > package/libs/libnftnl/patches/0001-libnftnl-add-fullcone-expression-support.patch
@@ -87,7 +88,7 @@ curl -s $mirror/openwrt/patch/firewall4/nftables/0002-nftables-add-brcm-fullcone
 git clone https://$github/sbwml/packages_new_nat6 package/utils/nat6 -b openwrt-25.12
 
 # natflow
-git clone https://$github/xuanranran/package_new_natflow package/utils/natflow
+git clone https://$github/sbwml/package_new_natflow package/utils/natflow
 
 # luci-app-firewall
 curl -s https://raw.githubusercontent.com/openwrt/luci/refs/heads/master/applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js > customfeeds/luci/applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js
@@ -109,17 +110,6 @@ sed -i "/-openwrt/iOPENSSL_OPTIONS += enable-ktls '-DDEVRANDOM=\"\\\\\"/dev/uran
 # openssl - lto
 sed -i "s/ no-lto//g" package/libs/openssl/Makefile
 sed -i "/TARGET_CFLAGS +=/ s/\$/ -ffat-lto-objects/" package/libs/openssl/Makefile
-
-
-# Docker
-rm -rf feeds/luci/applications/luci-app-dockerman
-git clone https://$github/sbwml/luci-app-dockerman -b openwrt-25.12 feeds/luci/applications/luci-app-dockerman
-rm -rf feeds/packages/utils/{docker,dockerd,containerd,runc}
-git clone https://$github/sbwml/packages_utils_docker feeds/packages/utils/docker
-git clone https://$github/sbwml/packages_utils_dockerd feeds/packages/utils/dockerd
-git clone https://$github/sbwml/packages_utils_containerd feeds/packages/utils/containerd
-git clone https://$github/sbwml/packages_utils_runc feeds/packages/utils/runc
-
 
 # nghttp3
 rm -rf customfeeds/packages/libs/nghttp3
@@ -159,6 +149,9 @@ sed -i '/ubus_parallel_req/a\        ubus_script_timeout 300;' customfeeds/packa
 # nginx - config
 curl -s $mirror/openwrt/nginx/luci.locations > customfeeds/packages/net/nginx/files-luci-support/luci.locations
 curl -s $mirror/openwrt/nginx/uci.conf.template > customfeeds/packages/net/nginx-util/files/uci.conf.template
+
+# nginx-util
+sed -i '/\/etc\/nginx\/uci.conf.template/d' customfeeds/packages/net/nginx-util/Makefile
 
 # apk
 mkdir -p package/system/apk/patches
@@ -203,6 +196,9 @@ patch -p1 -d customfeeds/luci < ../data/luci/0001-luci-app-package-manager-suppo
 sed -i 's#\\u@\\h:\\w\\\$#\\[\\e[32;1m\\][\\u@\\h\\[\\e[0m\\] \\[\\033[01;34m\\]\\W\\[\\033[00m\\]\\[\\e[32;1m\\]]\\[\\e[0m\\]\\\$#g' package/base-files/files/etc/profile
 sed -ri 's/(export PATH=")[^"]*/\1%PATH%:\/opt\/bin:\/opt\/sbin:\/opt\/usr\/bin:\/opt\/usr\/sbin/' package/base-files/files/etc/profile
 sed -i '/PS1/a\export TERM=xterm-color' package/base-files/files/etc/profile
+
+# busybox
+sed -i '/profile\.d/d' package/utils/busybox/Makefile
 
 # rootfs files
 mkdir -p files/etc/sysctl.d
@@ -282,9 +278,28 @@ pushd target/linux/generic/hack-6.18
     curl -Os $mirror/openwrt/patch/kernel-6.18/linux-rt/012-RT-0007-Revert-drm-i915-Depend-on-PREEMPT_RT.patch
 popd
 
-# mac80211 - 6.18
-rm -rf package/kernel/mac80211
-git clone https://$github/sbwml/package_kernel_mac80211 package/kernel/mac80211 -b v6.18
+# mt76
+rm -rf package/kernel/mt76
+mkdir -p package/kernel/mt76/patches package/kernel/mt76/src/firmware/mt7927
+curl -s $mirror/openwrt/patch/mt76/Makefile > package/kernel/mt76/Makefile
+pushd package/kernel/mt76/patches
+    curl -Os $mirror/openwrt/patch/mt76/patches/003-pass-LED-define-via-ccflags-y.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/100-fix-build-with-linux-6.12rc2.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/102-use-hrtimer_setup-in-mt76x02u-beacon-init.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/201-mt76-mt7925-fix-stale-pointer-comparisons-in-change_.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/202-mt76-mt7925-add-320MHz-bandwidth-to-bss_rlm_tlv.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/203-mt76-mt7925-handle-320MHz-bandwidth-in-RXV-and-TXS.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/204-mt76-mt7925-populate-EHT-320MHz-MCS-map-in-sta_rec.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/205-mt76-mt7925-advertise-EHT-320MHz-capabilities-for-6G.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/206-mt76-mt7925-add-MT7927-chip-ID-helpers.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/207-mt76-mt7925-add-MT7927-firmware-paths.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/208-mt76-mt7925-use-irq_map-for-chip-specific-interrupt-.patch
+    curl -Os $mirror/openwrt/patch/mt76/patches/209-mt76-mt7925-disable-ASPM-and-runtime-PM-for-MT7927.patch
+popd
+pushd package/kernel/mt76/src/firmware/mt7927
+    curl -Os $mirror/openwrt/patch/mt76/src/firmware/mt7927/WIFI_MT6639_PATCH_MCU_2_1_hdr.bin
+    curl -Os $mirror/openwrt/patch/mt76/src/firmware/mt7927/WIFI_RAM_CODE_MT6639_2_1.bin
+popd
 
 # kernel patch
 # btf: silence btf module warning messages
