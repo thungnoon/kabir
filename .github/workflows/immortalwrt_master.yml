@@ -1,10 +1,10 @@
-name: immortalwrt_master
+name: immortalwrt_master_6_18
 
 permissions: write-all
 
 on:
   schedule:
-    - cron: 0 16 */3 * *
+    - cron: 0 10 */4 * *
   workflow_dispatch:
 
 env:
@@ -35,7 +35,7 @@ jobs:
         remove-dotnet: 'true'
 
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@main
 
     - name: Initialization Environment
       env:
@@ -72,8 +72,7 @@ jobs:
         git clone --depth=1 https://github.com/openwrt/telephony -b $REPO_BRANCH customfeeds/telephony
         echo "::group::Executing package hook scripts"
         find ../scripts -type f -name "*.sh" -exec chmod +x {} +
-        ../scripts/immortalwrt/hook-package00.sh
-        ../scripts/immortalwrt/hook-package01.sh
+        ../scripts/immortalwrt/hook-package.sh
         ../scripts/immortalwrt/hook-base.sh
         echo "::endgroup::"
         ../scripts/immortalwrt/hook-feeds.sh
@@ -91,7 +90,7 @@ jobs:
         ../$DIY_SH
         ../scripts/preset-clash-core.sh amd64
         ../scripts/preset-nikki-core.sh amd64
-        ../scripts/zsh_master/preset-terminal-tools.sh
+        ../scripts/preset-terminal-tools.sh
         echo "::group::View 'make defconfig' output"
         make defconfig
         echo "::endgroup::"
@@ -132,7 +131,7 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
-   
+
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
@@ -147,7 +146,7 @@ jobs:
         make target/install -j$(nproc) || make target/install -j1 V=s
         make checksum
         echo "GENERATE_STATUS=success" >> $GITHUB_OUTPUT
-
+        
     - name: Organize and Rename Files
       id: organize
       if: ${{ env.UPLOAD_RELEASE == 'true' && !cancelled() }}
@@ -163,14 +162,17 @@ jobs:
       run: |
           echo "release_tag=$(date +"%Y.%m.%d")-immortalwrt" >> $GITHUB_OUTPUT
           echo "release_date=$(date "+%Y年%m月%d日")" >> $GITHUB_OUTPUT
+          KERNEL_VERSION=$(cat $OPENWRTROOT/build_dir/target-*/linux-*/linux-*/include/config/kernel.release)
+          echo "release_kernel=$KERNEL_VERSION" >> $GITHUB_OUTPUT
           touch release.txt
-          echo -e "**固件说明**: \n" >> release.txt
+          echo -e "**📥固件说明**: \n" >> release.txt
           echo -e "#### 后台地址: \`192.168.5.1\`\n" >> release.txt
           echo -e "#### 后台密码: \`password\`\n" >> release.txt
+          echo -e "#### Linux Kernel: **$KERNEL_VERSION**\n" >> release.txt
           echo "status=success" >> $GITHUB_OUTPUT
           
     - name: Upload firmware to release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -181,22 +183,22 @@ jobs:
           files: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@v2
+      uses: Mattraks/delete-workflow-runs@main
       with:
           retain_days: 5
           keep_minimum_runs: 5
 
     - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@v0.3.4
+      uses: ophub/delete-releases-workflows@main
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-          keep_latest: 5
+          delete_releases: true
+          releases_keep_latest: 15
           delete_tags: true
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Delete Artifacts
-      uses: geekyeggo/delete-artifact@v6
+      uses: geekyeggo/delete-artifact@main
       with:
          name: |
             bin-archive
