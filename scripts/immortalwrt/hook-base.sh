@@ -9,7 +9,7 @@ gitea="git.cooluc.com"
 sed -i 's/-flto=auto/-flto=jobserver/g' include/package.mk
 
 curl -s $mirror/openwrt/patch/generic-25.12/0005-kernel-Add-support-for-llvm-clang-compiler.patch | patch -p1
-curl -s $mirror/openwrt/patch/generic-25.12/0006-build-kernel-add-out-of-tree-kernel-config.patch | patch -p1
+patch --batch --forward -p1 < ../data/patches/kernel/0006-build-kernel-add-out-of-tree-kernel-config.patch
 
 # add source mirror
 sed -i '/"@OPENWRT": \[/a\\t\t"https://source.cooluc.com",' scripts/projectsmirrors.json
@@ -181,6 +181,7 @@ curl -s $mirror/openwrt/patch/luci/0004-luci-mod-status-firewall-disable-legacy-
 curl -s $mirror/openwrt/patch/luci/0005-luci-mod-system-add-refresh-interval-setting.patch | patch -p1
 curl -s $mirror/openwrt/patch/luci/0006-luci-mod-system-mounts-add-docker-directory-mount-po.patch | patch -p1
 curl -s $mirror/openwrt/patch/luci/0007-luci-mod-system-add-ucitrack-luci-mod-system-zram.js.patch | patch -p1
+patch -p1 < ../../../data/luci/0008-luci-mod-status-dmesg-add-ANSI-terminal-color-and-re.patch
 popd
 
 # Luci diagnostics.js
@@ -280,26 +281,7 @@ popd
 
 # mt76
 rm -rf package/kernel/mt76
-mkdir -p package/kernel/mt76/patches package/kernel/mt76/src/firmware/mt7927
-curl -s $mirror/openwrt/patch/mt76/Makefile > package/kernel/mt76/Makefile
-pushd package/kernel/mt76/patches
-    curl -Os $mirror/openwrt/patch/mt76/patches/003-pass-LED-define-via-ccflags-y.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/100-fix-build-with-linux-6.12rc2.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/102-use-hrtimer_setup-in-mt76x02u-beacon-init.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/201-mt76-mt7925-fix-stale-pointer-comparisons-in-change_.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/202-mt76-mt7925-add-320MHz-bandwidth-to-bss_rlm_tlv.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/203-mt76-mt7925-handle-320MHz-bandwidth-in-RXV-and-TXS.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/204-mt76-mt7925-populate-EHT-320MHz-MCS-map-in-sta_rec.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/205-mt76-mt7925-advertise-EHT-320MHz-capabilities-for-6G.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/206-mt76-mt7925-add-MT7927-chip-ID-helpers.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/207-mt76-mt7925-add-MT7927-firmware-paths.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/208-mt76-mt7925-use-irq_map-for-chip-specific-interrupt-.patch
-    curl -Os $mirror/openwrt/patch/mt76/patches/209-mt76-mt7925-disable-ASPM-and-runtime-PM-for-MT7927.patch
-popd
-pushd package/kernel/mt76/src/firmware/mt7927
-    curl -Os $mirror/openwrt/patch/mt76/src/firmware/mt7927/WIFI_MT6639_PATCH_MCU_2_1_hdr.bin
-    curl -Os $mirror/openwrt/patch/mt76/src/firmware/mt7927/WIFI_RAM_CODE_MT6639_2_1.bin
-popd
+git clone https://github.com/xuanranran/package_kernel_mt76 package/kernel/mt76
 
 # kernel patch
 # btf: silence btf module warning messages
