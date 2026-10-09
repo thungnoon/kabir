@@ -20,15 +20,26 @@ rm -rf customfeeds/packages/net/shadowsocks-libev
 
 rm -rf customfeeds/packages/net/{*alist,chinadns-ng,dns2socks,dns2tcp,lucky,sing-box}
 
-# Update golang
-rm -rf customfeeds/packages/lang/golang
-git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lang/golang
-
 # poweroffdevice
 git clone https://github.com/sirpdboy/luci-app-poweroffdevice customfeeds/luci/applications/luci-app-poweroffdevice
 
 # partexp
 git clone https://github.com/sirpdboy/luci-app-partexp customfeeds/luci/applications/luci-app-partexp
+
+# Update golang
+rm -rf customfeeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lang/golang
+
+# Docker
+rm -rf customfeeds/luci/applications/luci-app-dockerman
+git clone https://github.com/sbwml/luci-app-dockerman -b openwrt-25.12 customfeeds/luci/applications/luci-app-dockerman
+rm -rf customfeeds/packages/utils/{docker,dockerd,containerd,runc}
+git clone https://github.com/sbwml/packages_utils_docker customfeeds/packages/utils/docker
+git clone https://github.com/sbwml/packages_utils_dockerd customfeeds/packages/utils/dockerd
+git clone https://github.com/sbwml/packages_utils_containerd customfeeds/packages/utils/containerd
+# Keep the urfave CLI resources required by go:embed in the Go build directory.
+sed -i '/^MAKE_PATH:=/i GO_PKG_INSTALL_EXTRA += vendor/github.com/urfave/cli/v3/autocomplete/ vendor/github.com/urfave/cli-docs/v3/.*[.]gotmpl' customfeeds/packages/utils/containerd/Makefile
+git clone https://github.com/sbwml/packages_utils_runc customfeeds/packages/utils/runc
 
 # samba4 - bump version
 # rm -rf customfeeds/packages/net/samba4
@@ -52,9 +63,6 @@ rm -rf package/network/utils/xdp-tools
 git clone --depth 1 https://github.com/sbwml/package_network_utils_xdp-tools package/network/utils/xdp-tools
 
 # clang
-# xtables-addons module
-rm -rf customfeeds/packages/net/xtables-addons
-git clone https://$github/sbwml/kmod_packages_net_xtables-addons customfeeds/packages/net/xtables-addons -b openwrt-25.12
 # netatop
 sed -i 's/$(MAKE)/$(KERNEL_MAKE)/g' customfeeds/packages/admin/netatop/Makefile
 curl -s $mirror/openwrt/patch/packages-patches/clang/netatop/900-fix-build-with-clang.patch > customfeeds/packages/admin/netatop/patches/900-fix-build-with-clang.patch
@@ -102,21 +110,19 @@ sed -i 's|^PKG_SOURCE_URL:=.*|PKG_SOURCE_URL:=@SF/$(PKG_NAME)/$(PKG_NAME)/$(PKG_
 
 # xl2tpd
 sed -i '/ifneq (0,0)/i TARGET_CFLAGS += -std=gnu17\n' customfeeds/packages/net/xl2tpd/Makefile
-# netdata
-sed -i '/TARGET_CFLAGS/i TARGET_CFLAGS += -std=gnu17\n' customfeeds/packages/admin/netdata/Makefile
-# uwsgi
-sed -i '/MAKE_VARS/i TARGET_CFLAGS += -std=gnu17\n' customfeeds/packages/net/uwsgi/Makefile
-# libpam
-sed -i '/MESON_ARGS/i TARGET_CFLAGS += -std=gnu17\n' customfeeds/packages/libs/libpam/Makefile
-# coova-chilli - fix gcc 15 c23
-sed -i '/TARGET_CFLAGS/s/$/ -std=gnu17/' customfeeds/packages/net/coova-chilli/Makefile
 
-sed -i '/^CONFIG_FAILOVER=y$/a # CONFIG_SHORTCUT_FE is not set' target/linux/x86/64/config-6.18
+# fix gcc-16.1.0
+# elfutils lto
+curl -s $mirror/openwrt/patch/packages-patches_gcc16/elfutils/900-fix-gcc16-null-dereference-with-lto.patch > package/libs/elfutils/patches/900-fix-gcc16-null-dereference-with-lto.patch
+# bash
+sed -i "/PKG_INSTALL:=/i\PKG_BUILD_FLAGS:=no-lto" customfeeds/packages/utils/bash/Makefile
+# quectel-cm
+mkdir -p customfeeds/packages/net/quectel-cm/patches
+cp -f $GITHUB_WORKSPACE/data/patches/quectel-cm/030-gcc16.patch customfeeds/packages/net/quectel-cm/patches/030-gcc16.patch
+
+sed -i '/^CONFIG_FAILOVER=y$/a CONFIG_SHORTCUT_FE=y' target/linux/x86/64/config-6.18
 
 # libnftnl
 rm -rf package/libs/libnftnl/patches
 # nftables
 rm -rf package/network/utils/nftables/patches
-
-# del packages
-rm -rf customfeeds/packages/net/onionshare-cli
