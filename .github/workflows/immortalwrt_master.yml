@@ -59,6 +59,8 @@ jobs:
 
     - name: Update Feeds
       id: update
+      env:
+        CNSPEEDTEST_TOKEN: ${{ secrets.CNSPEEDTEST_TOKEN }}
       run: |
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
