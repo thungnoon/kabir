@@ -37,6 +37,7 @@ rm -rf customfeeds/packages/utils/{docker,dockerd,containerd,runc}
 git clone https://github.com/sbwml/packages_utils_docker customfeeds/packages/utils/docker
 git clone https://github.com/sbwml/packages_utils_dockerd customfeeds/packages/utils/dockerd
 git clone https://github.com/sbwml/packages_utils_containerd customfeeds/packages/utils/containerd
+
 # Keep the urfave CLI resources required by go:embed in the Go build directory.
 sed -i '/^MAKE_PATH:=/i GO_PKG_INSTALL_EXTRA += vendor/github.com/urfave/cli/v3/autocomplete/ vendor/github.com/urfave/cli-docs/v3/.*[.]gotmpl' customfeeds/packages/utils/containerd/Makefile
 git clone https://github.com/sbwml/packages_utils_runc customfeeds/packages/utils/runc
@@ -79,9 +80,6 @@ git clone https://$github/sbwml/kmod_packages_net_coova-chilli customfeeds/packa
 mkdir -p package/kernel/nat46/patches
 curl -s $mirror/openwrt/patch/packages-patches/nat46/102-fix-build-with-kernel-6.18.patch > package/kernel/nat46/patches/102-fix-build-with-kernel-6.18.patch
 
-# openvswitch
-sed -i '/ovs_kmod_openvswitch_depends/a\\t\ \ +kmod-sched-act-sample \\' customfeeds/packages/net/openvswitch/Makefile
-
 # rtpengine
 curl -s $mirror/openwrt/patch/packages-patches/rtpengine/901-fix-build-for-linux-6.18.patch > customfeeds/telephony/net/rtpengine/patches/901-fix-build-for-linux-6.18.patch
 
@@ -122,7 +120,34 @@ cp -f $GITHUB_WORKSPACE/data/patches/quectel-cm/030-gcc16.patch customfeeds/pack
 
 sed -i '/^CONFIG_FAILOVER=y$/a CONFIG_SHORTCUT_FE=y' target/linux/x86/64/config-6.18
 
-# libnftnl
-rm -rf package/libs/libnftnl/patches
-# nftables
-rm -rf package/network/utils/nftables/patches
+# Preserve ImmortalWrt fullcone patches; hook-base.sh adds BCM support.
+
+# 修改开源站地址 (按内容删除国内镜像, 避免行号漂移破坏 JSON)
+sed -i '\#mirror.iscas.ac.cn/kernel.org#d; \#mirrors.ustc.edu.cn/kernel.org#d; \#mirror.nju.edu.cn/kernel.org#d; \#mirrors.ustc.edu.cn/gnome#d; \#mirror.nju.edu.cn/gnome#d' scripts/projectsmirrors.json
+
+# Prefer the official kernel.org CDN; keep the edge mirror and other fallbacks
+sed -i '/"@KERNEL": \[/,/]/ {
+  \#"https://mirrors.edge.kernel.org/pub"#d
+  s#"https://cdn.kernel.org/pub"#"https://cdn.kernel.org/pub",\n\t\t"https://mirrors.edge.kernel.org/pub"#
+}' scripts/projectsmirrors.json
+
+# Prefer the official Samba source; keep other mirrors as fallbacks
+samba_makefile="customfeeds/packages/net/samba4/Makefile"
+if [ -f "$samba_makefile" ]; then
+  sed -i '\#https://download.samba.org/pub/samba/stable/#d; \#https://www.nic.funet.fi/index/samba/pub/samba/stable/#s/[[:space:]]*\\$//; /^PKG_SOURCE_URL:= \\/a\        https://download.samba.org/pub/samba/stable/ \\' "$samba_makefile"
+fi
+
+# Authenticate both private source and its version-pinned native Release.
+# Preload dl so later make download/compile needs no token or public repository.
+# Optional for forks: missing credentials or failed preparation must not fail firmware builds.
+if ! python3 "$(dirname "${BASH_SOURCE[0]}")/preset-cnspeedtest.py" x86_64; then
+  # Exclude any old checkout from package scanning: keeping it here could make
+  # make download fail later on an unavailable private Release. Preserve it outside package/.
+  if [ -e package/community/openwrt-cnspeedtest ] || [ -L package/community/openwrt-cnspeedtest ]; then
+    cnspeedtest_skip_dir="$(mktemp -d .cnspeedtest-skipped.XXXXXX)" || exit 1
+    mv -- package/community/openwrt-cnspeedtest "$cnspeedtest_skip_dir/" || exit 1
+    echo "Previous cnspeedtest checkout preserved in $cnspeedtest_skip_dir/"
+    unset cnspeedtest_skip_dir
+  fi
+  echo "::warning::Skipping optional cnspeedtest packages: source/core preparation failed or CNSPEEDTEST_TOKEN is unavailable. Continuing firmware build."
+fi
