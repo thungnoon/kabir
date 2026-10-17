@@ -46,8 +46,9 @@ curl -s $mirror/openwrt/patch/dpdk/dpdk/patches/201-r8125-add-r8125-ethernet-pol
 curl -s $mirror/openwrt/patch/dpdk/numactl/Makefile > package/emortal/numactl/Makefile
 
 # fstools
-rm -rf package/system/fstools
-git clone https://$github/sbwml/package_system_fstools -b openwrt-25.12 package/system/fstools
+# Keep the ImmortalWrt source version and extroot patch; add sbwml filesystem changes.
+mkdir -p package/system/fstools/patches
+cp -f "$GITHUB_WORKSPACE"/data/patches/fstools/*.patch package/system/fstools/patches/
 # util-linux
 mkdir -p package/utils/util-linux/patches
 curl -s https://raw.githubusercontent.com/sbwml/package_utils_util-linux/refs/heads/openwrt-25.12/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch > package/utils/util-linux/patches/0002-ntfs-use-ntfs3-for-read-write-filesystem.patch
@@ -71,14 +72,13 @@ curl -s $mirror/openwrt/patch/firewall4/100-openwrt-firewall4-add-custom-nft-com
 sed -i 's|$(PROJECT_GIT)/project|https://github.com/openwrt|g' package/network/config/firewall4/Makefile
 # libnftnl
 mkdir -p package/libs/libnftnl/patches
-curl -s $mirror/openwrt/patch/firewall4/libnftnl/0001-libnftnl-add-fullcone-expression-support.patch > package/libs/libnftnl/patches/0001-libnftnl-add-fullcone-expression-support.patch
-curl -s $mirror/openwrt/patch/firewall4/libnftnl/0002-libnftnl-add-brcm-fullcone-support.patch > package/libs/libnftnl/patches/0002-libnftnl-add-brcm-fullcone-support.patch
-# fix build on rhel9
-sed -i '/^PKG_BUILD_FLAGS[[:space:]]*:/aPKG_FIXUP:=autoreconf' package/libs/libnftnl/Makefile
+# Remove the previous replacements when rerunning preparation on an existing tree.
+rm -f package/libs/libnftnl/patches/{0001-libnftnl-add-fullcone-expression-support,0002-libnftnl-add-brcm-fullcone-support,0003-libnftnl-fullcone-adapt-setter-api}.patch
+cp -f "$GITHUB_WORKSPACE/data/patches/libnftnl/002-libnftnl-add-brcm-fullcone-support.patch" package/libs/libnftnl/patches/
 # nftables
 mkdir -p package/network/utils/nftables/patches
-curl -s $mirror/openwrt/patch/firewall4/nftables/0001-nftables-add-fullcone-expression-support.patch > package/network/utils/nftables/patches/0001-nftables-add-fullcone-expression-support.patch
-curl -s $mirror/openwrt/patch/firewall4/nftables/0002-nftables-add-brcm-fullconenat-support.patch > package/network/utils/nftables/patches/0002-nftables-add-brcm-fullconenat-support.patch
+rm -f package/network/utils/nftables/patches/{0001-nftables-add-fullcone-expression-support,0002-nftables-add-brcm-fullconenat-support}.patch
+cp -f "$GITHUB_WORKSPACE/data/patches/nftables/003-nftables-add-brcm-fullconenat-support.patch" package/network/utils/nftables/patches/
 
 # FullCone module
 # rm -rf package/network/utils/fullconenat-nft
@@ -127,7 +127,6 @@ git clone https://$github/sbwml/feeds_packages_net_curl customfeeds/packages/net
 sed -i 's/enable-skill/enable-skill --disable-modern-top/g' customfeeds/packages/utils/procps-ng/Makefile
 
 # TTYD
-sed -i 's/services/system/g' customfeeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 sed -i '3 a\\t\t"order": 50,' customfeeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 sed -i 's/procd_set_param stdout 1/procd_set_param stdout 0/g' customfeeds/packages/utils/ttyd/files/ttyd.init
 sed -i 's/procd_set_param stderr 1/procd_set_param stderr 0/g' customfeeds/packages/utils/ttyd/files/ttyd.init
@@ -184,9 +183,6 @@ curl -s $mirror/openwrt/patch/luci/0006-luci-mod-system-mounts-add-docker-direct
 curl -s $mirror/openwrt/patch/luci/0007-luci-mod-system-add-ucitrack-luci-mod-system-zram.js.patch | patch -p1
 patch -p1 < ../../../data/luci/0008-luci-mod-status-dmesg-add-ANSI-terminal-color-and-re.patch
 popd
-
-# Luci diagnostics.js
-sed -i "s/immortalwrt.org/www.baidu.com/g" customfeeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js
 
 # luci-compat - remove extra line breaks from description
 sed -i '/<br \/>/d' customfeeds/luci/modules/luci-compat/luasrc/view/cbi/full_valuefooter.htm
@@ -287,12 +283,10 @@ git clone https://github.com/xuanranran/package_kernel_mt76 package/kernel/mt76
 # kernel patch
 # btf: silence btf module warning messages
 curl -s $mirror/openwrt/patch/kernel-6.18/btf/990-btf-silence-btf-module-warning-messages.patch > target/linux/generic/hack-6.18/990-btf-silence-btf-module-warning-messages.patch
-# cpu model
-curl -s $mirror/openwrt/patch/kernel-6.18/arm64/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch > target/linux/generic/hack-6.18/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
 # bcm-fullcone
 curl -s $mirror/openwrt/patch/kernel-6.18/net/982-add-bcm-fullcone-support.patch > target/linux/generic/hack-6.18/982-add-bcm-fullcone-support.patch
 curl -s $mirror/openwrt/patch/kernel-6.18/net/983-add-bcm-fullcone-nft_masq-support.patch > target/linux/generic/hack-6.18/983-add-bcm-fullcone-nft_masq-support.patch
 # shortcut-fe
 curl -s $mirror/openwrt/patch/kernel-6.18/net/601-netfilter-export-udp_get_timeouts-function.patch > target/linux/generic/hack-6.18/601-netfilter-export-udp_get_timeouts-function.patch
 curl -s $mirror/openwrt/patch/kernel-6.18/net/952-net-conntrack-events-support-multiple-registrant.patch > target/linux/generic/hack-6.18/952-net-conntrack-events-support-multiple-registrant.patch
-curl -s $mirror/openwrt/patch/kernel-6.18/net/953-net-patch-linux-kernel-to-support-shortcut-fe.patch > target/linux/generic/hack-6.18/953-net-patch-linux-kernel-to-support-shortcut-fe.patch
+cp -f "$GITHUB_WORKSPACE/data/patches/kernel/953-net-patch-linux-kernel-to-support-shortcut-fe.patch" target/linux/generic/hack-6.18/953-net-patch-linux-kernel-to-support-shortcut-fe.patch
