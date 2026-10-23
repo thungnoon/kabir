@@ -3,9 +3,16 @@ name: immortalwrt_master_6_18
 permissions: write-all
 
 on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      compile_mwan3:
+        description: 'Add mwan3'
+        required: true
+        default: false
+        type: boolean
   schedule:
     - cron: 0 10 */4 * *
-  workflow_dispatch:
 
 env:
   USER_NAME: immortalwrt
