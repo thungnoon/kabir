@@ -5,14 +5,7 @@ permissions: write-all
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs:
-      compile_mwan3:
-        description: 'Add mwan3'
-        required: true
-        default: false
-        type: boolean
-  schedule:
-    - cron: 0 10 */4 * *
+  
 
 env:
   USER_NAME: immortalwrt
