@@ -53,7 +53,7 @@ Signed-off-by: Lovin Yarn <juanshengyuan@gmail.com>
  	  paravirtual datapath when the VF is unplugged.
  
 +config SHORTCUT_FE
-+	bool "Enables kernel network stack path for Shortcut  Forwarding Engine"
++	bool "Enables kernel network stack path for Shortcut Forwarding Engine"
 +
  config ETHTOOL_NETLINK
  	bool "Netlink interface for ethtool"
@@ -149,9 +149,9 @@ Signed-off-by: Lovin Yarn <juanshengyuan@gmail.com>
  		goto skip_classify;
 --- a/net/netfilter/nf_conntrack_ecache.c
 +++ b/net/netfilter/nf_conntrack_ecache.c
-@@ -143,12 +143,24 @@
- 	rcu_read_lock();
+@@ -135,20 +135,32 @@
  
+ 	rcu_read_lock();
  	notify = rcu_dereference(net->ct.nf_conntrack_event_cb);
 -	if (!notify) {
 +#ifdef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
@@ -165,10 +165,10 @@ Signed-off-by: Lovin Yarn <juanshengyuan@gmail.com>
  	}
  
 +#ifdef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
-+		ret = atomic_notifier_call_chain(&net->ct.nf_conntrack_chain,
-+			events | missed, &item);
-+		if (notify)
-+			ret = notify->ct_event(events | missed, item);
++	ret = atomic_notifier_call_chain(&net->ct.nf_conntrack_chain,
++					 events | missed, &item);
++	if (notify)
++		ret = notify->ct_event(events | missed, item);
 +#else
  	ret = notify->ct_event(events | missed, item);
 +#endif
