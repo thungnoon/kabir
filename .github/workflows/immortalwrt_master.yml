@@ -34,7 +34,7 @@ jobs:
         haskell: true
         large-packages: true
         docker-images: true
-        swap: false
+        swap-storage: false
 
     - name: Free Extra Disk Space
       run: |
