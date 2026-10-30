@@ -5,7 +5,6 @@ permissions: write-all
 on:
   repository_dispatch:
   workflow_dispatch:
-  
 
 env:
   USER_NAME: xuanranran
@@ -27,12 +26,23 @@ jobs:
       GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
       
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
+    - name: Free Disk Space
+      uses: jlumbroso/free-disk-space@v1.3.1
       with:
-        root-reserve-mb: 512
-        swap-size-mb: 1024
-        remove-dotnet: 'true'
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap: false
+
+    - name: Free Extra Disk Space
+      run: |
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ibus
+        docker rmi $(docker image ls -q) 2>/dev/null || true
+        df -hT
 
     - name: Checkout
       uses: actions/checkout@main
@@ -58,6 +68,7 @@ jobs:
         git clone https://github.com/$USER_NAME/immortalwrt -b $REPO_BRANCH openwrt
 
     - name: Update Feeds
+      id: update
       run: |
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
@@ -103,10 +114,23 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
   
+    - name: Setup ccache
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-openwrt-ccache-${{ hashFiles('openwrt/.config') }}
+        restore-keys: |
+          ${{ runner.os }}-openwrt-ccache-
+
     - name: Compile Packages
       id: compile
       run: |
         cd $OPENWRTROOT
+        # 激活 ccache 环境变量让编译走缓存加速
+        export PATH="/usr/lib/ccache:/usr/lib64/ccache:$PATH"
+        export CCACHE_DIR="$HOME/.ccache"
+        ccache -s
+        
         export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         echo -e "$(nproc) thread compile"
         make tools/compile -j$(nproc) || make tools/compile -j$(nproc) || make tools/compile -j1 IGNORE_ERRORS=1 V=s
@@ -115,6 +139,9 @@ jobs:
         make diffconfig
         make package/compile -j$(nproc) IGNORE_ERRORS=1 || make package/compile -j$(nproc) IGNORE_ERRORS=1
         make package/index
+        
+        ccache -s # 打印缓存命中率
+        
         cd $OPENWRTROOT/bin/packages/*
         PLATFORM=$(basename `pwd`)
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
