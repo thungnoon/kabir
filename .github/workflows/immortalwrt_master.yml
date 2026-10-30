@@ -44,6 +44,12 @@ jobs:
         docker rmi $(docker image ls -q) 2>/dev/null || true
         df -hT
 
+    - name: Install Host Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses5-dev libncursesw5-dev gawk python3 python3-pip rsync unzip zlib1g-dev ccache
+        sudo timedatectl set-timezone "$TZ"
+
     - name: Checkout
       uses: actions/checkout@main
 
@@ -126,7 +132,6 @@ jobs:
       id: compile
       run: |
         cd $OPENWRTROOT
-        # 激活 ccache 环境变量让编译走缓存加速
         export PATH="/usr/lib/ccache:/usr/lib64/ccache:$PATH"
         export CCACHE_DIR="$HOME/.ccache"
         ccache -s
@@ -140,7 +145,7 @@ jobs:
         make package/compile -j$(nproc) IGNORE_ERRORS=1 || make package/compile -j$(nproc) IGNORE_ERRORS=1
         make package/index
         
-        ccache -s # 打印缓存命中率
+        ccache -s
         
         cd $OPENWRTROOT/bin/packages/*
         PLATFORM=$(basename `pwd`)
@@ -226,5 +231,5 @@ jobs:
     - name: Delete Artifacts
       uses: geekyeggo/delete-artifact@main
       with:
-         name: |
-            bin-archive
+           name: |
+              bin-archive
