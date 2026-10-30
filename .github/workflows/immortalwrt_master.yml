@@ -5,7 +5,6 @@ permissions: write-all
 on:
   repository_dispatch:
   workflow_dispatch:
-  
 
 env:
   USER_NAME: xuanranran
@@ -33,6 +32,14 @@ jobs:
         root-reserve-mb: 512
         swap-size-mb: 1024
         remove-dotnet: 'true'
+
+    - name: Free Extra Disk Space
+      run: |
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ibus
+        docker rmi $(docker image ls -q) 2>/dev/null || true
+        df -hT
 
     - name: Checkout
       uses: actions/checkout@main
