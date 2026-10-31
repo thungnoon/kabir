@@ -26,12 +26,15 @@ jobs:
       GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
       
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
+    - name: name: Free Disk Space
+      uses: jlumbroso/free-disk-space@v1.3.1
       with:
-        root-reserve-mb: 512
-        swap-size-mb: 1024
-        remove-dotnet: 'true'
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: false
 
     - name: Free Extra Disk Space
       run: |
