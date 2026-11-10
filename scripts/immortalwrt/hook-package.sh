@@ -26,6 +26,10 @@ git clone https://github.com/sirpdboy/luci-app-poweroffdevice customfeeds/luci/a
 # partexp
 git clone https://github.com/sirpdboy/luci-app-partexp customfeeds/luci/applications/luci-app-partexp
 
+# honk
+mkdir -p package/custom
+git clone --depth 1 https://github.com/kenzok8/openwrt-honk package/custom/honk
+
 # Update golang
 rm -rf customfeeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang customfeeds/packages/lang/golang
