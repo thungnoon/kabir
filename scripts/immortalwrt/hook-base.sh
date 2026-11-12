@@ -54,7 +54,7 @@ mkdir -p package/utils/util-linux/patches
 curl -s https://raw.githubusercontent.com/sbwml/package_utils_util-linux/refs/heads/openwrt-25.12/patches/0001-ntfs-use-ntfs3-for-read-write-filesystem.patch > package/utils/util-linux/patches/0002-ntfs-use-ntfs3-for-read-write-filesystem.patch
 
 # Shortcut Forwarding Engine
-git clone https://$gitea/sbwml/shortcut-fe package/emortal/shortcut-fe
+# git clone https://$gitea/sbwml/shortcut-fe package/emortal/shortcut-fe
 
 # Patch FireWall 4
 rm -rf package/network/config/firewall4/patches
