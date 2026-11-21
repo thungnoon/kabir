@@ -28,7 +28,7 @@ git clone https://github.com/sirpdboy/luci-app-partexp customfeeds/luci/applicat
 
 # honk
 mkdir -p package/custom
-git clone --depth 1 https://github.com/kenzok8/openwrt-honk package/custom/honk
+git clone --depth 1 https://github.com/QiuSimons/luci-app-honk package/custom/honk
 
 # Update golang
 rm -rf customfeeds/packages/lang/golang
